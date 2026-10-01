@@ -295,6 +295,22 @@ body{height:100vh;height:100dvh}
 .cp.ok{cursor:pointer;box-shadow:0 0 0 3px var(--yellow),0 0 14px var(--yellow);animation:cpulse 1s ease-in-out infinite}
 @keyframes cpulse{50%{transform:scale(1.08)}}
 @media (prefers-reduced-motion:reduce){.cp.ok,.cs.dst::after{animation:none}}
+
+/* snakes and ladders */
+.swrap{display:flex;justify-content:center;padding-bottom:34px}
+#sboard{position:relative;width:min(94vw,calc(100vh - 330px),520px);width:min(94vw,calc(100dvh - 330px),520px);min-width:220px;aspect-ratio:1;display:grid;grid-template:repeat(10,1fr)/repeat(10,1fr);background:#fbf4e4;border:8px solid #7a4a28;border-radius:14px;box-shadow:0 0 0 3px #4d2c14,0 16px 34px rgba(0,0,0,.55)}
+.sc{padding:2px 3px;font-size:clamp(.42rem,1.9vw,.72rem);font-weight:800;color:rgba(36,19,0,.65)}
+.sc.a{background:#fbf4e4}.sc.b{background:#f1d79d}.sc.fin{background:var(--yellow)}
+#sfx{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1}
+.snk{animation:sway 2.6s ease-in-out infinite alternate}
+@keyframes sway{to{transform:translate(.8px,-.6px)}}
+.stk{position:absolute;width:5.6%;height:5.6%;border-radius:50%;border:3px solid #fff;transform:translate(-50%,-50%);transition:left .17s linear,top .17s linear;box-shadow:0 3px 6px rgba(0,0,0,.5);z-index:3;pointer-events:none}
+.stk.slide{transition:left .75s ease-in-out,top .75s ease-in-out}
+.stk.turn{animation:sturn 1s ease-in-out infinite}
+@keyframes sturn{50%{transform:translate(-50%,-50%) scale(1.25)}}
+#spop{position:absolute;left:50%;top:50%;translate:-50% -50%;font-family:"Bowlby One",sans-serif;font-size:clamp(1.4rem,7vw,2.6rem);color:#fff;text-shadow:3px 3px 0 #000;opacity:0;pointer-events:none;z-index:6;white-space:nowrap}
+#sroll:disabled{opacity:.4;box-shadow:none;cursor:default}
+@media (prefers-reduced-motion:reduce){.snk,.stk.turn{animation:none}.stk,.stk.slide{transition:none}}
 </style>
 </head>
 <body>
@@ -334,11 +350,16 @@ body{height:100vh;height:100dvh}
       <span class="gdesc">Jump your way across the board. 2 players, bots welcome.</span>
       <span class="gplay">Play now</span>
     </button>
+    <button class="gcard" id="playsnakes" role="listitem" aria-label="Play Snakes and Ladders">
+      <span class="gart"><span class="emo" style="font-size:3.6rem">&#128013;</span><span class="emo" style="font-size:3.6rem">&#129754;</span></span>
+      <span class="gname">Snakes and Ladders</span>
+      <span class="gdesc">Climb up, slide down, reach 100. 2 to 4 players, bots welcome.</span>
+      <span class="gplay">Play now</span>
+    </button>
     <div class="gcard soon" role="listitem"><span class="gart"><span class="emo" aria-hidden="true">⭕</span></span><span class="gname">Tic Tac Toe</span><span class="gdesc">Classic three in a row for two players.</span><span class="gsoon">Coming soon</span></div>
     <div class="gcard soon" role="listitem"><span class="gart"><span class="emo" aria-hidden="true">🔴</span></span><span class="gname">Connect Four</span><span class="gdesc">Drop discs and line up four to win.</span><span class="gsoon">Coming soon</span></div>
     <div class="gcard soon" role="listitem"><span class="gart"><span class="emo" aria-hidden="true">🧠</span></span><span class="gname">Memory Match</span><span class="gdesc">Flip cards and find the pairs.</span><span class="gsoon">Coming soon</span></div>
     <div class="gcard soon" role="listitem"><span class="gart"><span class="emo" aria-hidden="true">♟️</span></span><span class="gname">Chess</span><span class="gdesc">The classic strategy game, head to head.</span><span class="gsoon">Coming soon</span></div>
-    <div class="gcard soon" role="listitem"><span class="gart"><span class="emo" aria-hidden="true">🐍</span></span><span class="gname">Snakes and Ladders</span><span class="gdesc">Climb up, slide down, reach 100.</span><span class="gsoon">Coming soon</span></div>
     <div class="gcard soon" role="listitem"><span class="gart"><span class="emo" aria-hidden="true">🔤</span></span><span class="gname">Hangman</span><span class="gdesc">Guess the word before it is too late.</span><span class="gsoon">Coming soon</span></div>
   </div>
   <button class="carbtn" id="next" aria-label="Scroll games right">&#8250;</button>
@@ -478,6 +499,47 @@ body{height:100vh;height:100dvh}
     <div class="msg" id="cmsg"></div>
     <div class="banner" id="cbanner"></div>
   </div>
+</section>
+
+<section class="screen" id="snakesHome">
+  <div class="center">
+    <div class="logo" style="background:var(--green);font-size:clamp(2rem,9vw,3rem);line-height:1.1">SNAKES<br>&amp; LADDERS</div>
+    <div class="stack">
+      <input id="sname" maxlength="12" placeholder="Your name" autocomplete="nickname" aria-label="Your name">
+      <button id="screate">Create a room</button>
+      <div class="or">or join your friends</div>
+      <div class="join">
+        <input id="scode" maxlength="4" placeholder="CODE" aria-label="Room code">
+        <button id="sjoin">Join</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="screen" id="snakesLobby">
+  <div class="center">
+    <div class="muted">Room code</div>
+    <div class="codebox" id="sroomcode">----</div>
+    <div class="row"><button class="ghost" id="scopy">Copy invite link</button></div>
+    <ul class="plist" id="splist"></ul>
+    <div class="row" id="shostbtns">
+      <button class="ghost" id="sbotbtn">Add bot</button>
+      <button id="sstart">Start game</button>
+    </div>
+    <p class="muted" id="swait" style="display:none">Waiting for the host to start...</p>
+    <p class="muted" style="font-size:.85rem;margin:10px 0 0">2 to 4 players</p>
+    <div class="row" style="margin-top:10px"><button class="ghost" id="sleave">Leave</button></div>
+  </div>
+</section>
+
+<section class="screen" id="snakesGame">
+  <div class="lps" id="sps"></div>
+  <div class="mid">
+    <div class="swrap"><div id="sboard"></div></div>
+    <div class="msg" id="smsg"></div>
+    <div class="banner" id="sbanner"></div>
+  </div>
+  <div class="lctl"><div class="ldie" id="sdie"></div><button id="sroll">Roll dice</button></div>
 </section>
 
 <footer class="foot">
@@ -1488,6 +1550,278 @@ $('brand').onclick=e=>{
 /* invite links: ?game=checkers#ABCD */
 if(new URLSearchParams(location.search).get('game')==='checkers'){
   $('ccode').value=location.hash.slice(1,5).toUpperCase();show('checkersHome');
+}
+})();
+
+/* ---------- SNAKES AND LADDERS ---------- */
+(()=>{
+const SC=['red','green','blue','yellow'];
+const SNK={17:7,54:34,62:19,64:60,87:24,93:73,95:75,99:78},LAD={4:14,9:31,20:38,28:84,40:59,51:67,63:81,71:91};
+const SCL=['#e63946','#2fae66','#a06cd5','#ff8a3d','#2778e0','#d94fa0','#18a5a7','#8a6d1d'];
+const PIPS=[[],[4],[0,8],[0,4,8],[0,2,6,8],[0,2,4,6,8],[0,2,3,5,6,8]];
+const P=n=>{const i=n-1,r=Math.floor(i/10),c=r%2?9-i%10:i%10;return [c*10+5,(9-r)*10+5];};
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const anim=mv=>400+(mv.land-mv.from)*172+(mv.end!==mv.land?1100:0);
+let sp=null,sHost=false,sConn=null,sCode='',sName='',sLobby=[],G=null,sview=null,tk={},walking=new Set(),lastRn=-1,swon=false,rollIv=null;
+
+/* chat: same panel, routed through the Snakes room */
+const _show3=show;
+const SH={say:t=>{if(sHost)sChatRelay(sName,t,null);else if(sConn&&sConn.open)sConn.send({t:'chat',text:t});},count:()=>(G?G.players:sLobby).length};
+function sChatRelay(from,text,src){
+  chatAdd(from,text,!src);
+  (G?G.players:sLobby).forEach(p=>{if(p.conn&&p.conn.open)p.conn.send({t:'chat',from,text,mine:p.conn===src});});
+}
+show=id=>{
+  const ch=$('chat').hidden,isS=id.startsWith('snakes'),l=id==='snakesLobby'||id==='snakesGame';
+  _show3(id);
+  if(isS){
+    chatHook=SH;
+    document.querySelector('#chips .t').style.display='none';
+    if(l){$('chatbtn').hidden=false;$('chat').hidden=ch;}
+    if(id==='snakesGame')document.querySelector('.foot').style.display='none';
+  }
+};
+
+/* board, snakes and ladders (built once) */
+(()=>{
+  let c='',s='';
+  for(let y=0;y<10;y++){const r=9-y;for(let x=0;x<10;x++){const n=r*10+(r%2?9-x:x)+1;c+=`<div class="sc ${(x+y)%2?'b':'a'}${n===100?' fin':''}">${n}</div>`;}}
+  Object.entries(LAD).forEach(([a,b])=>{
+    const [x1,y1]=P(+a),[x2,y2]=P(+b),dx=x2-x1,dy=y2-y1,L=Math.hypot(dx,dy),ox=-dy/L*1.5,oy=dx/L*1.5;
+    s+=`<g stroke="#8a5a2b" stroke-linecap="round"><line x1="${x1+ox}" y1="${y1+oy}" x2="${x2+ox}" y2="${y2+oy}" stroke-width=".9"/><line x1="${x1-ox}" y1="${y1-oy}" x2="${x2-ox}" y2="${y2-oy}" stroke-width=".9"/>`;
+    for(let d=3;d<L-1;d+=4){const u=d/L;s+=`<line x1="${x1+dx*u+ox}" y1="${y1+dy*u+oy}" x2="${x1+dx*u-ox}" y2="${y1+dy*u-oy}" stroke-width=".7"/>`;}
+    s+='</g>';
+  });
+  Object.entries(SNK).forEach(([h,t],i)=>{
+    const [x1,y1]=P(+h),[x2,y2]=P(+t),dx=x2-x1,dy=y2-y1,L=Math.hypot(dx,dy),px=-dy/L,py=dx/L,N=28,col=SCL[i%SCL.length];
+    let d='';
+    for(let k=0;k<=N;k++){const u=k/N,w=Math.sin(u*Math.PI*(2+L/30))*2.6*(1-.5*u);d+=(k?'L':'M')+(x1+dx*u+px*w).toFixed(1)+' '+(y1+dy*u+py*w).toFixed(1);}
+    s+=`<g class="snk" style="animation-delay:${(-i*.7).toFixed(1)}s"><path d="${d}" stroke="${col}" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="${d}" stroke="#fff" stroke-opacity=".45" stroke-width="1" stroke-dasharray="1 2.4" fill="none" stroke-linecap="round"/><circle cx="${x1}" cy="${y1}" r="2.4" fill="${col}"/><circle cx="${x1+px}" cy="${y1+py}" r=".7" fill="#fff"/><circle cx="${x1-px}" cy="${y1-py}" r=".7" fill="#fff"/><circle cx="${x1+px}" cy="${y1+py}" r=".3" fill="#111"/><circle cx="${x1-px}" cy="${y1-py}" r=".3" fill="#111"/></g>`;
+  });
+  $('sboard').innerHTML=c+`<svg id="sfx" viewBox="0 0 100 100" preserveAspectRatio="none">${s}</svg><div id="spop"></div>`;
+})();
+
+/* ---------- host: rules ---------- */
+const sl=(fn,ms)=>{const g=G;setTimeout(()=>{if(G===g)fn();},ms);};
+function tclear(){document.querySelectorAll('#sboard .stk').forEach(e=>e.remove());tk={};walking.clear();lastRn=-1;swon=false;}
+function sNew(){
+  const src=G?G.players:sLobby;
+  tclear();
+  G={players:src.map(p=>({name:p.name,bot:p.bot,conn:p.conn,pos:0})),cur:0,dice:0,phase:'roll',rn:0,mv:null,winner:null,msg:'Game on! Roll the dice. You need an exact roll to land on 100.'};
+  $('over').classList.remove('on');$('overB').disabled=false;
+  scast();sbotq();
+}
+function sbotq(){if(G&&!G.winner&&G.phase==='roll'&&G.players[G.cur].bot)sl(sbotroll,900);}
+function sbotroll(){if(G&&!G.winner&&G.phase==='roll'&&G.players[G.cur].bot)sRoll(G.cur);}
+function sRoll(pi){
+  if(!G||G.winner||G.phase!=='roll'||pi!==G.cur)return;
+  const p=G.players[pi],d=1+Math.floor(Math.random()*6),from=p.pos;
+  let land=from+d,t=p.name+' rolled '+d;
+  if(land>100){land=from;t+='. Needs an exact roll to finish';}
+  const end=land===from?from:(SNK[land]||LAD[land]||land);
+  p.pos=end;G.dice=d;G.rn++;G.mv={pi,from,land,end,rn:G.rn};
+  const again=d===6&&end!==100;
+  if(end===100){G.winner=p.name;t+=' and reached 100!';}
+  else{
+    if(end<land)t+=' and a snake sent them down to '+end+'!';
+    else if(end>land)t+=' and climbed a ladder to '+end+'!';
+    else if(land!==from)t+=' and moved to '+land;
+    if(again)t+='. A six, roll again!';
+  }
+  G.msg=t;G.phase='wait';scast();
+  if(G.winner)return;
+  sl(()=>{if(!again)G.cur=(G.cur+1)%G.players.length;G.phase='roll';scast();sbotq();},anim(G.mv)+500);
+}
+function scast(){
+  G.players.forEach((p,i)=>{
+    const v={you:i,players:G.players.map(x=>({name:x.name,pos:x.pos})),cur:G.cur,dice:G.dice,phase:G.phase,msg:G.msg,winner:G.winner,mv:G.mv};
+    if(i===0)srender(v);else if(p.conn&&p.conn.open)p.conn.send({t:'state',v});
+  });
+}
+
+/* ---------- rendering and animation ---------- */
+function showDie(n){$('sdie').innerHTML=Array.from({length:9},(_,i)=>`<i class="${PIPS[n||0].includes(i)?'on':''}"></i>`).join('');}
+function rollDie(n){
+  if(rollIv)clearInterval(rollIv);
+  if(RM){showDie(n);return;}
+  let k=0;
+  rollIv=setInterval(()=>{showDie(1+Math.floor(Math.random()*6));if(++k>5){clearInterval(rollIv);rollIv=null;showDie(n);}},65);
+  $('sdie').animate([{transform:'rotate(0) scale(.7)'},{transform:'rotate(360deg) scale(1.2)'},{transform:'none'}],{duration:420,easing:'ease-out'});
+}
+function spop(t,col){
+  const e=$('spop');e.textContent=t;e.style.color=col;
+  if(RM)return;
+  e.animate([{opacity:0,transform:'scale(.3) rotate(-12deg)'},{opacity:1,transform:'scale(1.25) rotate(4deg)',offset:.35},{opacity:1,transform:'scale(1)',offset:.7},{opacity:0,transform:'scale(1.1) translateY(-14px)'}],{duration:1200,easing:'ease-out'});
+}
+function lay(v){
+  v.players.forEach((p,i)=>{
+    const el=tk[i];if(!el||walking.has(i))return;
+    const same=v.players.map((q,j)=>j).filter(j=>p.pos>0&&v.players[j].pos===p.pos),k=same.indexOf(i),n=same.length;
+    const o=n>1?(k-(n-1)/2)*2.6:0,[x,y]=p.pos>0?P(p.pos):[6+i*8,104];
+    el.style.left=(x+o)+'%';el.style.top=y+'%';
+  });
+}
+async function walk(mv){
+  const pi=mv.pi,el=tk[pi];
+  if(!el)return;
+  walking.add(pi);
+  try{
+    await sleep(420);
+    for(let s=mv.from+1;s<=mv.land;s++){
+      if(tk[pi]!==el)return;
+      const [x,y]=P(s);el.style.left=x+'%';el.style.top=y+'%';
+      el.animate([{transform:'translate(-50%,-50%)'},{transform:'translate(-50%,-115%) scale(1.2)'},{transform:'translate(-50%,-50%)'}],{duration:170});
+      await sleep(172);
+    }
+    if(tk[pi]!==el)return;
+    if(mv.end!==mv.land){
+      const snake=mv.end<mv.land;
+      await sleep(200);
+      spop(snake?'SSSSS! 🐍':'LADDER! 🪜',snake?'#e63946':'#2fae66');
+      if(!RM&&snake)$('sboard').animate([{transform:'none'},{transform:'translateX(-6px)'},{transform:'translateX(6px)'},{transform:'translateX(-4px)'},{transform:'none'}],{duration:400});
+      el.classList.add('slide');
+      const [x,y]=P(mv.end);el.style.left=x+'%';el.style.top=y+'%';
+      await sleep(800);
+      el.classList.remove('slide');
+    }
+  }finally{walking.delete(pi);if(sview)lay(sview);}
+}
+function srender(v){
+  sview=v;show('snakesGame');
+  if(!v.mv){lastRn=-1;swon=false;}
+  v.players.forEach((p,i)=>{
+    if(!tk[i]){const el=document.createElement('div');el.className='stk';el.style.background=HEX[SC[i]];$('sboard').appendChild(el);tk[i]=el;}
+  });
+  Object.keys(tk).forEach(i=>{if(+i>=v.players.length){tk[i].remove();delete tk[i];}});
+  Object.entries(tk).forEach(([i,el])=>el.classList.toggle('turn',+i===v.cur&&!v.winner));
+  const mine=v.cur===v.you&&!v.winner;
+  $('sps').innerHTML=v.players.map((p,i)=>`<div class="lchip ${i===v.cur&&!v.winner?'turn':''}"><span class="av sm" style="background:${HEX[SC[i]]}">${esc(p.name[0]||'?').toUpperCase()}</span><span class="nm">${esc(p.name)}</span><span class="muted">${p.pos||'start'}</span></div>`).join('');
+  const fresh=v.mv&&v.mv.rn>lastRn;
+  if(fresh){lastRn=v.mv.rn;rollDie(v.dice);if(RM)lay(v);else walk(v.mv);}
+  else if(!rollIv)showDie(v.dice);
+  lay(v);
+  $('sdie').style.borderColor=HEX[SC[v.cur]];
+  $('smsg').textContent=v.msg;
+  const b=$('sbanner');b.className='banner'+(mine?' me':'');
+  b.textContent=v.winner?'':mine?(v.phase==='roll'?'Your turn: roll the dice':''):v.players[v.cur].name+"'s turn";
+  $('sroll').disabled=!(mine&&v.phase==='roll');
+  if(v.winner){
+    setTimeout(()=>{
+      if(!sview||!sview.winner||swon)return;
+      swon=true;confetti();
+      const won=sview.players[sview.you].name===sview.winner;
+      overlay(won?'You win!':sview.winner+' wins!',won?'You reached square 100.':'Better luck next round.',sHost?'Play again':'Waiting for host...',()=>{if(sHost)sNew();});
+      $('overB').disabled=!sHost;
+    },anim(v.mv)+600);
+  }else $('over').classList.remove('on');
+}
+function ssend(m){if(sHost)sRoll(0);else if(sConn&&sConn.open)sConn.send(m);}
+$('sroll').onclick=()=>ssend({t:'roll'});
+
+/* ---------- connection ---------- */
+function sReset(){
+  if(sp){try{sp.destroy();}catch(e){}}
+  sp=null;sHost=false;sConn=null;sLobby=[];G=null;sview=null;tclear();
+  $('over').classList.remove('on');$('overB').disabled=false;
+  chatClear();unread=0;$('chatbadge').hidden=true;
+  show('snakesHome');
+}
+function sname(){
+  const n=$('sname').value.trim().slice(0,12)||'Player';
+  try{localStorage.setItem('uno-name',n);}catch(e){}
+  return n;
+}
+try{const n=localStorage.getItem('uno-name');if(n)$('sname').value=n;}catch(e){}
+function sUniq(n){let x=n.slice(0,12)||'Player',q=2;const all=sLobby.map(p=>p.name);while(all.includes(x))x=n.slice(0,10)+q++;return x;}
+function sCreate(){
+  sName=sname();sHost=true;sCode=makeCode();
+  sp=new Peer('snakesparty-'+sCode);
+  sp.on('open',()=>{sLobby=[{name:sName,bot:false,conn:null}];show('snakesLobby');sSendLobby();});
+  sp.on('error',e=>{
+    if(e.type==='unavailable-id'){sp.destroy();sCreate();}
+    else{toast('Connection problem ('+e.type+'). Try again.');sReset();}
+  });
+  sp.on('connection',c=>{c.on('data',m=>sHostData(c,m));c.on('close',()=>sLeft(c));});
+}
+function sJoin(){
+  sName=sname();sCode=$('scode').value.trim().toUpperCase();
+  if(sCode.length!==4)return toast('Enter the 4-letter room code.');
+  sp=new Peer();
+  sp.on('open',()=>{
+    const c=sConn=sp.connect('snakesparty-'+sCode,{reliable:true});
+    const t=setTimeout(()=>{if(c.open||sConn!==c)return;toast('Could not reach that room. Check the code.');sReset();},9000);
+    c.on('open',()=>{clearTimeout(t);c.send({t:'join',name:sName});});
+    c.on('data',sGuestData);
+    c.on('close',()=>{if(sview||$('snakesLobby').classList.contains('on'))overlay('Host left','The game has ended.','Back to start',sReset);});
+  });
+  sp.on('error',e=>{toast(e.type==='peer-unavailable'?'Room not found. Check the code.':'Connection problem ('+e.type+').');if(e.type!=='network')sReset();});
+}
+function sGuestData(m){
+  if(m.t==='lobby'){sCode=m.code;sDrawLobby(m.names);show('snakesLobby');}
+  else if(m.t==='state')srender(m.v);
+  else if(m.t==='chat')chatAdd(m.from,m.text,m.mine);
+  else if(m.t==='full'){toast(m.why);sReset();}
+}
+function sHostData(c,m){
+  if(m.t==='chat'){
+    const p=(G?G.players:sLobby).find(x=>x.conn===c);
+    if(p&&typeof m.text==='string')sChatRelay(p.name,m.text.slice(0,140),c);
+    return;
+  }
+  if(m.t==='join'){
+    if(G)return c.send({t:'full',why:'That game has already started.'});
+    if(sLobby.length>=4)return c.send({t:'full',why:'That room is full (4 players max).'});
+    sLobby.push({name:sUniq(String(m.name||'')),bot:false,conn:c});sSendLobby();
+  }else if(G&&m.t==='roll'){
+    const i=G.players.findIndex(p=>p.conn===c);
+    if(i>0)sRoll(i);
+  }
+}
+function sLeft(c){
+  if(G){
+    const p=G.players.find(x=>x.conn===c);if(!p)return;
+    p.conn=null;p.bot=true;p.name+=' 🤖';
+    G.msg=p.name+' left and a bot took over';
+    scast();sbotq();
+  }else{sLobby=sLobby.filter(p=>p.conn!==c);sSendLobby();}
+}
+function sSendLobby(){
+  const names=sLobby.map(p=>p.name+(p.bot?' 🤖':''));
+  sLobby.forEach(p=>p.conn&&p.conn.open&&p.conn.send({t:'lobby',names,code:sCode}));
+  sDrawLobby(names);
+}
+function sDrawLobby(names){
+  $('sroomcode').textContent=sCode;
+  $('splist').innerHTML=names.map((n,i)=>`<li><span class="av" style="background:${HEX[SC[i]]};color:${i===3?'#241300':'#fff'}">${esc(n[0]||'?').toUpperCase()}</span>${esc(n)}${i===0?' <span class="muted">(host)</span>':''}</li>`).join('');
+  $('shostbtns').style.display=sHost?'flex':'none';
+  $('swait').style.display=sHost?'none':'block';
+}
+
+/* ---------- buttons ---------- */
+$('playsnakes').onclick=()=>show('snakesHome');
+$('screate').onclick=sCreate;
+$('sjoin').onclick=sJoin;
+$('scode').onkeydown=e=>{if(e.key==='Enter')sJoin();};
+$('sleave').onclick=sReset;
+$('sbotbtn').onclick=()=>{if(sLobby.length>=4)return toast('Room is full (4 players max).');sLobby.push({name:sUniq('Bot'),bot:true,conn:null});sSendLobby();};
+$('sstart').onclick=()=>{if(sLobby.length<2)return toast('You need at least 2 players. Add a bot or wait for friends.');G=null;sNew();};
+$('scopy').onclick=async()=>{
+  const link=location.href.split('#')[0].split('?')[0]+'?game=snakes#'+sCode;
+  try{await navigator.clipboard.writeText(link);toast('Invite link copied.');}catch(e){toast(link);}
+};
+
+/* brand link: leave Snakes properly, otherwise use the existing handler */
+const oldBrand3=$('brand').onclick;
+$('brand').onclick=e=>{
+  if(!document.querySelector('.screen.on').id.startsWith('snakes'))return oldBrand3(e);
+  e.preventDefault();
+  if(sp&&!confirm('Leave the current room and go back to all games?'))return;
+  sReset();show('hub');
+};
+
+/* invite links: ?game=snakes#ABCD */
+if(new URLSearchParams(location.search).get('game')==='snakes'){
+  $('scode').value=location.hash.slice(1,5).toUpperCase();show('snakesHome');
 }
 })();
 </script>
