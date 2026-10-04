@@ -19,7 +19,10 @@ Online multiplayer uses PeerJS for peer-to-peer connections and requires an inte
 
 ## Project structure
 
-- `index.html` — the complete app, including its styles and game logic
+- `index.html` — page markup
+- `styles.css` — app styles
+- `app.js` — game logic
+- `favicon.svg` — browser tab icon
 - `LICENSE` — MIT License
 
 There is no build step or package installation required.
